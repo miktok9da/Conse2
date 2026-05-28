@@ -140,15 +140,24 @@ def main():
         print(f"[twitter] ❌ Video not found: {video_file}")
         return
 
-    # Read story for caption
+    # Read topic and stories for bilingual caption
+    topic_file = Path('output/topic.txt')
     story_file = Path('output/story.txt')
-    if story_file.exists():
-        story = story_file.read_text(encoding='utf-8')
-        # Create short caption for Twitter
-        first_sentence = story.split('.')[0] if '.' in story else story[:200]
-        caption = f"{first_sentence}... 🏛️\n\n#HistoireDesFemmes #HistoireAncienne #Histoire #Éducation"
+    story_en_file = Path('output/story_en.txt')
+
+    topic = topic_file.read_text(encoding='utf-8').strip() if topic_file.exists() else ""
+    story = story_file.read_text(encoding='utf-8').strip() if story_file.exists() else ""
+    story_en = story_en_file.read_text(encoding='utf-8').strip() if story_en_file.exists() else ""
+
+    hashtags = "#histoiredesfemmes #histoireancienne #éducation #histoire"
+    desc_fr = story[:120] if len(story) > 120 else story
+    desc_en = story_en[:100] if len(story_en) > 100 else story_en
+    if story:
+        caption = f"{desc_fr}\n{desc_en}\n\n{hashtags}"
+    elif topic:
+        caption = f"{topic}\n\n{hashtags}"
     else:
-        caption = "Histoire des femmes anciennes 🏛️ #HistoireDesFemmes #HistoireAncienne #Histoire #Éducation"
+        caption = f"Histoire des femmes anciennes\n\n{hashtags}"
 
     try:
         result = upload_to_twitter(str(video_file), caption)

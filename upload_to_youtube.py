@@ -96,27 +96,25 @@ def main():
         print("[youtube] ❌ No video found at output/final_video.mp4")
         return
     
-    # Read the story and topic for title
+    # Read topic and stories for bilingual content
+    topic_file = Path('output/topic.txt')
     story_file = Path('output/story.txt')
-    topic = ""
+    story_en_file = Path('output/story_en.txt')
     
-    if story_file.exists():
-        story = story_file.read_text(encoding='utf-8')
-        
-        # Extract key phrase from first sentence for title
-        first_sentence = story.split('.')[0] if '.' in story else story[:80]
-        
-        # Create short, catchy title (max 60 chars for mobile)
-        title = first_sentence[:57] + "..." if len(first_sentence) > 60 else first_sentence
-    else:
-        title = "Histoire des femmes anciennes"
+    topic = topic_file.read_text(encoding='utf-8').strip() if topic_file.exists() else ""
+    story = story_file.read_text(encoding='utf-8').strip() if story_file.exists() else ""
+    story_en = story_en_file.read_text(encoding='utf-8').strip() if story_en_file.exists() else ""
     
-    # NO description for Shorts (as requested)
-    description = "#Shorts #HistoireDesFemmes #HistoireAncienne"
+    # English title for YouTube
+    title = story_en[:60] if story_en else topic[:60] if topic else "Ancient Women's History"
+    
+    desc_fr = story[:150] if len(story) > 150 else story
+    desc_en = story_en[:150] if len(story_en) > 150 else story_en
+    description = f"{desc_fr}\n\n---\n{desc_en}\n\n#histoiredesfemmes #histoireancienne #éducation #shorts"
     
     tags = [
-        'Histoire', 'Femmes anciennes', 'Faits historiques',
-        'Shorts', 'IA', 'Éducation', 'Monde antique'
+        'histoire', 'femmes anciennes', 'faits historiques',
+        'shorts', 'éducation', 'antiquité'
     ]
     
     # Upload

@@ -210,9 +210,20 @@ def main():
         print(f"[tiktok] ❌ Video not found: {video_file}")
         return
 
-    # Test parameters
-    title = "Histoire des femmes anciennes"
-    description = "Découvrez les grandes femmes du monde antique #HistoireDesFemmes #HistoireAncienne"
+    # Read topic and stories for bilingual content
+    topic_file = Path('output/topic.txt')
+    story_file = Path('output/story.txt')
+    story_en_file = Path('output/story_en.txt')
+
+    topic = topic_file.read_text(encoding='utf-8').strip() if topic_file.exists() else ""
+    story = story_file.read_text(encoding='utf-8').strip() if story_file.exists() else ""
+    story_en = story_en_file.read_text(encoding='utf-8').strip() if story_en_file.exists() else ""
+
+    title = story_en[:220] if story_en else topic[:220] if topic else "Ancient Women's History"
+    hashtags = "#histoiredesfemmes #histoireancienne #éducation #fyp"
+    desc_fr = story[:1000] if len(story) > 1000 else story
+    desc_en = story_en[:1000] if len(story_en) > 1000 else story_en
+    description = f"{desc_fr}\n\n---\n{desc_en}\n\n{hashtags}" if story else f"{title}\n\n{hashtags}"
 
     try:
         result = upload_to_tiktok(str(video_file), title, description)
