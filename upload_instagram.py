@@ -99,7 +99,7 @@ def upload_to_instagram(video_path, caption):
                 'media_type': 'REELS',
                 'video_url': video_url,
                 'caption': caption_limited,
-                'share_to_feed': True
+                'share_to_feed': false
             }
 
             print(f"[instagram] Request URL: {container_url}")
