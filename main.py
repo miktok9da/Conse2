@@ -99,19 +99,16 @@ def choose_topic():
     return topic
 
 def generate_story_with_pollinations(topic: str) -> str:
-    """Generate a short French story about ancient women's history using paid Pollinations API."""
     api_key = os.getenv("POLLINATIONS_API_KEY")
     if not api_key:
         raise ValueError("POLLINATIONS_API_KEY environment variable is required for paid API")
-
     system = (
-        "Tu es un historien spécialisé dans l'histoire des femmes dans les civilisations anciennes. "
-        "Écris une courte histoire intéressante de 30 secondes (80-130 mots) en français. "
-        "Raconte des faits historiques réels, des lois, des coutumes ou des traditions. "
-        "Utilise un style vivant et captivant. Sans titres."
+        "Eres un historiador especializado en la historia de las mujeres en las civilizaciones antiguas. "
+        "Escribe una historia corta e interesante de 30 segundos (80-130 palabras) en espanol. "
+        "Cuenta hechos historicos reales, leyes, costumbres o tradiciones. "
+        "Usa un estilo vivo y cautivador. Sin titulos."
     )
-    prompt = f"Sujet: {topic}. Raconte un fait historique intéressant."
-
+    prompt = f"Tema: {topic}. Cuenta un hecho historico interesante."
     url = f"https://gen.pollinations.ai/text/{quote(prompt)}"
     headers = {"Authorization": f"Bearer {api_key}"}
     params = {
@@ -120,35 +117,29 @@ def generate_story_with_pollinations(topic: str) -> str:
         "system": system,
         "json": False
     }
-
-    print(f"[story] Generating French story for topic: {topic}")
-        for attempt in range(3):
+    print(f"[story] Generating Spanish story for topic: {topic}")
+    last_error = None
+    for attempt in range(3):
         try:
             r = requests.get(url, headers=headers, params=params, timeout=180)
             r.raise_for_status()
             text = r.text.strip()
-            break
+            words = text.split()
+            if len(words) > STORY_MAX_WORDS:
+                text = " ".join(words[:STORY_MAX_WORDS])
+            with open(STORY_FILE, "w", encoding="utf-8") as f:
+                f.write(text)
+            print(f"[story] Spanish story generated ({len(text.split())} words)")
+            return text
         except Exception as e:
+            last_error = e
             if attempt < 2:
                 wait = 10 * (attempt + 1)
                 print(f"[story] API attempt {attempt + 1} failed: {e}. Retrying in {wait}s...")
                 import time as _time
                 _time.sleep(wait)
                 continue
-            else:
-                raise
-    r.raise_for_status()
-    text = r.text.strip()
-
-    words = text.split()
-    if len(words) > STORY_MAX_WORDS:
-        text = " ".join(words[:STORY_MAX_WORDS])
-
-    with open(STORY_FILE, "w", encoding="utf-8") as f:
-        f.write(text)
-
-    print(f"[story] French story generated ({len(text.split())} words)")
-    return text
+    raise RuntimeError(f"Failed to generate story after 3 attempts: {last_error}")
 
 def generate_english_story(topic: str) -> str:
     """Generate an English version of the story for bilingual posts."""
