@@ -43,7 +43,7 @@ def generate_new_topics(count=100):
     }
 
     print(f"[topics] Generating {count} new French topics...")
-    r = requests.get(url, headers=headers, params=params, timeout=120)
+    r = requests.get(url, headers=headers, params=params, timeout=180)
     r.raise_for_status()
     
     # Parse topics
