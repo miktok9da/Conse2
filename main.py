@@ -122,7 +122,21 @@ def generate_story_with_pollinations(topic: str) -> str:
     }
 
     print(f"[story] Generating French story for topic: {topic}")
-    r = requests.get(url, headers=headers, params=params, timeout=60)
+        for attempt in range(3):
+        try:
+            r = requests.get(url, headers=headers, params=params, timeout=180)
+            r.raise_for_status()
+            text = r.text.strip()
+            break
+        except Exception as e:
+            if attempt < 2:
+                wait = 10 * (attempt + 1)
+                print(f"[story] API attempt {attempt + 1} failed: {e}. Retrying in {wait}s...")
+                import time as _time
+                _time.sleep(wait)
+                continue
+            else:
+                raise
     r.raise_for_status()
     text = r.text.strip()
 
@@ -157,7 +171,7 @@ def generate_english_story(topic: str) -> str:
     }
 
     print(f"[story] Generating English story for topic: {topic}")
-    r = requests.get(url, headers=headers, params=params, timeout=60)
+    r = requests.get(url, headers=headers, params=params, timeout=180)
     r.raise_for_status()
     text = r.text.strip()
 
